@@ -8,6 +8,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `functions/<domain>/<name>/` — one function. `index.ts` is the delivered file.
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
 - `tsconfig.json` — everything, newest TypeScript and Node types.
+- `tsconfig.baseline.json` — the delivered files alone, against the baseline `lib` and no types.
 - `.claude/hook.mjs` — refuses a root entry outside its allowlist, a `dependencies` field in
   `package.json` and a `CLAUDE.md` past 150 lines; formats and lints every file written.
 - `DECISIONS.md` — one line per decision.
@@ -18,7 +19,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 ## Commands
 
 - `pnpm install`
-- `pnpm check` — Biome, `tsc`, Vitest, knip. CI runs the same, plus the pull request checks.
+- `pnpm check` — Biome (a warning fails), `tsc` over both configs, Vitest, knip. CI runs the same,
+  plus the pull request checks.
 
 ## Non-negotiables
 

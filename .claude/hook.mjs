@@ -18,6 +18,7 @@ const allowed = new Set([
   'package.json',
   'pnpm-lock.yaml',
   'README.md',
+  'tsconfig.baseline.json',
   'tsconfig.json',
 ])
 
@@ -52,6 +53,7 @@ if (event === 'PreToolUse') {
   if (!existsSync(biome)) process.exit(0)
   const flags = [
     '--write',
+    '--error-on-warnings',
     '--colors=off',
     '--no-errors-on-unmatched',
     '--files-ignore-unknown=true',

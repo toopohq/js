@@ -8,3 +8,4 @@ One line per decision, newest last.
 - 2026-09-23 — Delivered files are checked in their own program, `tsconfig.baseline.json`: Vite's types reference Node's, so any program that imports Vitest sees `Buffer` and `process`.
 - 2026-09-23 — TypeScript 7 includes no `@types` package unless named, so `tsconfig.json` names `node`.
 - 2026-09-23 — No runtime dependencies: the hook refuses a `dependencies` field on a write, CI refuses it on every pull request, since `pnpm add` in a shell bypasses the hook.
+- 2026-09-23 — A Biome warning fails like an error, in CI and in the hook (`--error-on-warnings`): a warning that passes is a wish.
