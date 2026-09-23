@@ -1,17 +1,21 @@
 import type { truncate } from './index.ts'
 
-export type Case =
+type Case =
   | { input: Parameters<typeof truncate>; output: string; throws?: never }
   | { input: Parameters<typeof truncate>; throws: Error; output?: never }
 
-const invalidLength = new RangeError('length must be a non-negative integer')
+const invalidLength = new RangeError('length must be a non-negative integer or Infinity')
 
 // The name of a case is the reason it exists; a duplicate name does not compile.
-export const cases = {
+export const cases: Record<string, Case> = {
   'a text within the limit comes back unchanged': { input: ['hello', 10], output: 'hello' },
   'a text exactly at the limit comes back unchanged, without omission': {
     input: ['hello', 5],
     output: 'hello',
+  },
+  'a text within the limit comes back unchanged, even under an omission longer than the limit': {
+    input: ['hi', 2, '...'],
+    output: 'hi',
   },
   'an empty text comes back empty': { input: ['', 0], output: '' },
   'an infinite length never cuts': { input: ['hello', Infinity], output: 'hello' },
@@ -27,7 +31,7 @@ export const cases = {
     input: ['hello', 1],
     output: '…',
   },
-  'an omission longer than the limit yields an empty string': {
+  'a cut under an omission longer than the limit yields an empty string': {
     input: ['hello', 2, '...'],
     output: '',
   },
@@ -44,8 +48,12 @@ export const cases = {
     input: ['ab\uD800cd', 4],
     output: 'ab…',
   },
+  'a lone low surrogate at the cut is kept: only a high one can open a pair': {
+    input: ['ab\uDC00cd', 4],
+    output: 'ab\uDC00…',
+  },
   'a combining accent may be cut from its letter: code units, not graphemes': {
-    input: ['cafe\u0301 au lait', 5],
+    input: ['café au lait', 5],
     output: 'cafe…',
   },
 
@@ -60,4 +68,4 @@ export const cases = {
     input: ['hello', 10.5],
     throws: invalidLength,
   },
-} satisfies Record<string, Case>
+}
