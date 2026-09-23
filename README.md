@@ -8,4 +8,4 @@ carries its specification beside it. A function is written only under a name cla
 [`toopohq/spec`](https://github.com/toopohq/spec). Delivered code targets Baseline Widely
 Available.
 
-This repository is MIT. A delivered file is MIT-0: no attribution owed.
+This repository is MIT.
