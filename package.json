@@ -5,7 +5,7 @@
   "packageManager": "pnpm@12.5.1",
   "scripts": {
     "check": "biome ci --error-on-warnings && tsc && tsc -p tsconfig.baseline.json && knip && vitest run && stryker run",
-    "bench": "vitest bench"
+    "bench": "vitest bench --run"
   },
   "knip": {
     "entry": [

@@ -11,6 +11,8 @@ pnpm install
 pnpm check
 ```
 
+- A changed `index.ts` needs `pnpm bench`: it times the function against its version on `main` and
+  records the figure in `bench.json`, which `pnpm check` requires.
 - The title follows [Conventional Commits](https://www.conventionalcommits.org), for example
   `feat(string/truncate): the named case table`. It becomes the commit on `main`.
 - Every commit is signed off (`git commit -s`), certifying the

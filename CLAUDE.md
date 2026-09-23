@@ -6,7 +6,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 ## Structure
 
 - `functions/<domain>/<name>/` — one function. `index.ts` is the delivered file; `cases.bench.ts`
-  times it over its case table and `bench.json` records the figure, with the digest of `index.ts`.
+  is its workload over the case table and `bench.json` its figure, with the digest of `index.ts`.
+- `tooling/gate.ts` — the benchmark gate: main's `index.ts` against the branch's, then the figure.
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
 - `tooling/figures.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
 - `tsconfig.json` — everything, newest TypeScript and Node types.
@@ -24,8 +25,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `pnpm install`
 - `pnpm check` — Biome (a warning fails), `tsc` over both configs, knip, Vitest, then Stryker.
   CI runs the same, plus the pull request checks, which run even when `pnpm check` fails.
-- `pnpm bench` — locally, never in CI. Fails when a function is slower than its figure beyond the
-  noise; records a new figure only when `index.ts` changed and the run passed.
+- `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main` in
+  the same run and fails past 15 %; records the figure when `index.ts` changed and the run passed.
 
 ## Non-negotiables
 
