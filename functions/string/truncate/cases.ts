@@ -56,8 +56,12 @@ export const cases: Record<string, Case> = {
     input: ['ab\uDC00cd', 4],
     output: 'ab\uDC00…',
   },
+  "lone halves are the caller's: an omission may complete a high surrogate the cut leaves": {
+    input: ['\uD800\uD800\uDC00x', 3, '\uDC00'],
+    output: '\uD800\uDC00',
+  },
   'a combining accent may be cut from its letter: code units, not graphemes': {
-    input: ['café au lait', 5],
+    input: ['cafe\u0301 au lait', 5],
     output: 'cafe…',
   },
 

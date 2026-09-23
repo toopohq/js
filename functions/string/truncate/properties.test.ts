@@ -12,14 +12,6 @@ const invalid = fc.oneof(
   fc.double({ noInteger: true, max: Number.MAX_VALUE }),
 )
 
-test('no result exceeds the length', () => {
-  fc.assert(
-    fc.property(text, length, omission, (t, n, o) => {
-      expect(truncate(t, n, o).length).toBeLessThanOrEqual(n)
-    }),
-  )
-})
-
 test('a text within the length comes back unchanged', () => {
   const room = fc.oneof(fc.nat(4), fc.constant(Infinity))
   fc.assert(
@@ -29,22 +21,14 @@ test('a text within the length comes back unchanged', () => {
   )
 })
 
-test('a cut keeps a prefix of the text, then the omission', () => {
+test('a cut keeps whole code points, one unit short at most, then the omission', () => {
   fc.assert(
     fc.property(text, length, omission, (t, n, o) => {
       fc.pre(t.length > n && n >= o.length)
       const result = truncate(t, n, o)
-      expect(result).toBe(t.slice(0, result.length - o.length) + o)
-    }),
-  )
-})
-
-test('a cut gives up one unit at most, and never splits a surrogate pair', () => {
-  fc.assert(
-    fc.property(text, length, omission, (t, n, o) => {
-      fc.pre(t.length > n && n >= o.length)
-      const kept = t.slice(0, truncate(t, n, o).length - o.length)
-      expect(kept.length).toBeGreaterThanOrEqual(n - o.length - 1)
+      const kept = t.slice(0, result.length - o.length)
+      expect(result).toBe(kept + o)
+      expect([n - 1, n]).toContain(result.length)
       expect([...t].slice(0, [...kept].length).join('')).toBe(kept)
     }),
   )
