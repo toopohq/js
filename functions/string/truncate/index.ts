@@ -1,5 +1,12 @@
 // js/string/truncate
-// biome-ignore lint/correctness/noUnusedFunctionParameters: a signature-only stub, red until implemented
 export function truncate(text: string, length: number, omission = '…'): string {
-  throw new Error('not implemented')
+  if (!(length >= 0 && (Number.isInteger(length) || length === Infinity))) {
+    throw new RangeError('length must be a non-negative integer or Infinity')
+  }
+  if (text.length <= length) return text
+  let cut = length - omission.length
+  if (cut < 0) return ''
+  const unit = text.charCodeAt(cut - 1)
+  if (unit >= 0xd800 && unit <= 0xdbff) cut--
+  return text.slice(0, cut) + omission
 }
