@@ -5,6 +5,7 @@ import { expect, test } from 'vitest'
 
 // A catalogue publishes only the names spec claims, so every function folder is a claimed name.
 test('every function folder is a name claimed in spec', () => {
-  const folders = globSync('functions/*/*').map((path) => path.split(sep).slice(1).join('/'))
+  const functions = new URL('../functions', import.meta.url)
+  const folders = globSync('*/*', { cwd: functions }).map((path) => path.replaceAll(sep, '/'))
   expect(folders.filter((name) => !Object.hasOwn(names, name))).toEqual([])
 })

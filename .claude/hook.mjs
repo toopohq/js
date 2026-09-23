@@ -18,7 +18,6 @@ const allowed = new Set([
   'package.json',
   'pnpm-lock.yaml',
   'README.md',
-  'tsconfig.baseline.json',
   'tsconfig.json',
 ])
 
