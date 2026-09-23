@@ -7,9 +7,12 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 
 - `functions/<domain>/<name>/` — one function. `index.ts` is the delivered file; `cases.bench.ts`
   is its workload over the case table and `bench.json` its figure, with the digest of `index.ts`.
+- `functions/LICENSE` — MIT-0 for everything under `functions/`; the repository is MIT.
 - `tooling/gate.ts` — the benchmark gate: main's `index.ts` against the branch's, then the figure.
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
 - `tooling/figures.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
+- `tooling/delivered.test.ts` — the guard: a function folder holds exactly its files, and its
+  `index.ts` opens on its address, imports nothing, escapes no check and is under 10 % comment.
 - `tsconfig.json` — everything, newest TypeScript and Node types.
 - `tsconfig.baseline.json` — the delivered files alone, against the baseline `lib` and no types.
 - `stryker.config.json` — mutation testing over every delivered file; one surviving mutant fails.

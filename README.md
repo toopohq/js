@@ -8,4 +8,5 @@ carries its specification beside it. A function is written only under a name cla
 [`toopohq/spec`](https://github.com/toopohq/spec). Delivered code targets Baseline Widely
 Available.
 
-This repository is MIT.
+This repository is MIT, except `functions/`, which is [MIT-0](functions/LICENSE): a function you
+copy owes no attribution.
