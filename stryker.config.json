@@ -4,11 +4,7 @@
   "testRunner": "vitest",
   "tsconfigFile": "",
   "mutate": ["functions/*/*/index.ts"],
-  "ignorePatterns": [
-    "functions/*/*/properties.test.ts",
-    "tooling/figures.test.ts",
-    "tooling/delivered.test.ts"
-  ],
+  "ignorePatterns": ["functions/*/*/properties.test.ts", "tooling/*.test.ts"],
   "cleanTempDir": "always",
   "reporters": ["clear-text", "progress"],
   "thresholds": { "break": 100 }

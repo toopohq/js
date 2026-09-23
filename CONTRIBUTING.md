@@ -3,6 +3,9 @@
 - **A new function** needs its name claimed in [`toopohq/spec`](https://github.com/toopohq/spec)
   first. Open an issue there, naming what the function does.
 - **A runtime dependency** is not accepted. A delivered file depends on nothing.
+- **Everything under `functions/`** is contributed as MIT-0
+  ([`functions/LICENSE`](functions/LICENSE)), so a copied function owes no attribution; the rest of
+  the repository is MIT.
 
 ## Before a pull request
 
