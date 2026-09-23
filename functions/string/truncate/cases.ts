@@ -43,6 +43,10 @@ export const cases: Record<string, Case> = {
   },
   'a cut never splits a surrogate pair': { input: ['ab😀cd', 4], output: 'ab…' },
   'a surrogate pair that fits whole is kept': { input: ['ab😀cd', 5], output: 'ab😀…' },
+  'the highest code point is a pair like any other': {
+    input: ['ab\u{10FFFF}cd', 4],
+    output: 'ab…',
+  },
   'a bare cut never splits a surrogate pair either': { input: ['a😀', 2, ''], output: 'a' },
   'a lone high surrogate at the cut is dropped like a pair': {
     input: ['ab\uD800cd', 4],
