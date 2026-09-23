@@ -18,6 +18,7 @@ const allowed = new Set([
   'package.json',
   'pnpm-lock.yaml',
   'README.md',
+  'stryker.config.json',
   'tsconfig.baseline.json',
   'tsconfig.json',
 ])

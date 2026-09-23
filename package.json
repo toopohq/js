@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@12.5.1",
   "scripts": {
-    "check": "biome ci --error-on-warnings && tsc && tsc -p tsconfig.baseline.json && knip && vitest run"
+    "check": "biome ci --error-on-warnings && tsc && tsc -p tsconfig.baseline.json && knip && vitest run && stryker run"
   },
   "knip": {
     "entry": [
@@ -13,8 +13,11 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
+    "@stryker-mutator/core": "10.0.0",
+    "@stryker-mutator/vitest-runner": "10.0.0",
     "@toopo/spec": "github:toopohq/spec",
     "@types/node": "24.13.6",
+    "fast-check": "4.10.2",
     "knip": "6.37.0",
     "typescript": "7.0.2",
     "vitest": "5.0.1"
