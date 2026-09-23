@@ -9,3 +9,5 @@ One line per decision, newest last.
 - 2026-09-23 — TypeScript 7 includes no `@types` package unless named, so `tsconfig.json` names `node`.
 - 2026-09-23 — No runtime dependencies: the hook refuses a `dependencies` field on a write, CI refuses it on every pull request, since `pnpm add` in a shell bypasses the hook.
 - 2026-09-23 — A Biome warning fails like an error, in CI and in the hook (`--error-on-warnings`): a warning that passes is a wish.
+- 2026-09-23 — The baseline program sets `target: "es2024"`, so TypeScript's target-gated syntax checks run against the baseline, not `esnext`. The only syntax ES2024 adds, the regex `v` flag, is Widely Available since March 2026; its library is not, so `lib` stays `es2023`.
+- 2026-09-23 — `pnpm check` runs Vitest last, and CI runs its own checks even when `pnpm check` fails: a case table that is red on purpose hides no other guard.

@@ -19,8 +19,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 ## Commands
 
 - `pnpm install`
-- `pnpm check` — Biome (a warning fails), `tsc` over both configs, Vitest, knip. CI runs the same,
-  plus the pull request checks.
+- `pnpm check` — Biome (a warning fails), `tsc` over both configs, knip, Vitest last. CI runs
+  the same, plus the pull request checks, which run even when `pnpm check` fails.
 
 ## Non-negotiables
 
