@@ -25,8 +25,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `pnpm install`
 - `pnpm check` — Biome (a warning fails), `tsc` over both configs, knip, Vitest, then Stryker.
   CI runs the same, plus the pull request checks, which run even when `pnpm check` fails.
-- `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main` in
-  the same run and fails past 15 %; records the figure when `index.ts` changed and the run passed.
+- `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
+  five rounds in one run, and fails past 11 %; records the figure when `index.ts` changed and passed.
 
 ## Non-negotiables
 
