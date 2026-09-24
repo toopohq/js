@@ -9,8 +9,8 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 const biome = `${root}node_modules/@biomejs/biome/bin/biome`
 
 // Types erased to whitespace, then formatted: the .js keeps the header, comments and blank lines.
-// ponytail: one Biome per function, about 335 ms warm, so about 35 s for 100 functions; past
-// that, one `biome format` over the whole stripped tree.
+// One Biome per function, about 335 ms warm, so about 35 s for 100 functions; past that, one
+// `biome format` over the whole stripped tree.
 function strip(source: string): string {
   const run = spawnSync(process.execPath, [biome, 'format', '--stdin-file-path=index.js'], {
     cwd: root,

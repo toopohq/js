@@ -24,8 +24,10 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `tsconfig.json` — everything, newest TypeScript and Node types.
 - `tsconfig.baseline.json` — the delivered files alone, against the baseline `lib` and no types.
 - `stryker.config.json` — mutation testing over every delivered file; one surviving mutant fails.
-- `.claude/hook.mjs` — refuses a root entry outside its allowlist, a `dependencies` field in
-  `package.json` and a `CLAUDE.md` past 150 lines; formats and lints every file written.
+- `.claude/hook.mjs` — fast feedback for Claude Code, not enforcement: it sees that tool's writes
+  and a shell bypasses it. Refuses a root entry outside its allowlist, a `dependencies` field in
+  `package.json` — CI refuses that one too — and a `CLAUDE.md` past 150 lines; formats and lints
+  every file written.
 - `DECISIONS.md` — one line per decision.
 
 `spec` (`@toopo/spec`) is a devDependency from GitHub; the lockfile pins its commit, and
