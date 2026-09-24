@@ -19,8 +19,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
 - `tooling/figures.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
 - `tooling/delivered.test.ts` — the guard: a function folder holds exactly its files, and its
-  `index.ts` opens on its address, names no licence, imports nothing, escapes no check and is
-  under 10 % comment.
+  `index.ts` opens on its address, names no licence, imports nothing, escapes no check, states
+  its types rather than asserting them, and is under 10 % comment.
 - `tsconfig.json` — everything, newest TypeScript and Node types.
 - `tsconfig.baseline.json` — the delivered files alone, against the baseline `lib` and no types.
 - `stryker.config.json` — mutation testing over every delivered file; one surviving mutant fails.
@@ -45,6 +45,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - Zero runtime dependencies: `package.json` has no `dependencies` field. The hook and CI refuse one.
 - A function folder is a name claimed in `spec`. Claim it there first.
 - A source file is at most 150 lines, a function at most 40. Biome enforces both.
+- A pull request touches at most one function folder. CI refuses otherwise.
 - A pull request title is a Conventional Commit, every commit is signed off (DCO), and no title,
   body or commit carries assistant attribution. CI refuses otherwise.
 - `main` takes squash merges of green pull requests, nothing else.
