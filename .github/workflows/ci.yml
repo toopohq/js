@@ -57,9 +57,10 @@ jobs:
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler.ndjson
         run: |
           pnpm emit
-          npx --yes wrangler@4.137.0 pages deploy dist --project-name=toopo-js --branch=main
-          url=$(jq -r 'select(.type == "pages-deploy-detailed").url' "$WRANGLER_OUTPUT_FILE_PATH")
           cd dist
-          for file in js/*/*.*; do curl -fsS "$url/$file" | cmp - "$file"; done
-          for file in js/*/*.json; do curl -fsS "$url/${file%.json}" | cmp - "$file"; done
-          for file in js/*/*.[jt]s; do curl -fsS -o /dev/null -w '%{content_type}' "$url/$file" | grep -q 'charset=utf-8$'; done
+          npx --yes wrangler@4.137.0 pages deploy . --project-name=toopo-js --branch=main
+          url=$(jq -er 'select(.type == "pages-deploy-detailed" and .environment == "production").url' "$WRANGLER_OUTPUT_FILE_PATH")
+          get() { curl -fsS --retry 3 --retry-all-errors "$@"; }
+          for file in js/*/*.*; do get "$url/$file" | cmp - "$file"; done
+          for file in js/*/*.json; do get "$url/${file%.json}" | cmp - "$file"; done
+          for file in js/*/*.[jt]s; do get -o /dev/null -w '%{content_type}' "$url/$file" | grep -qE '^text/(plain|javascript); charset=utf-8$'; done
