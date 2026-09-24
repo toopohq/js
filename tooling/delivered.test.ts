@@ -3,7 +3,7 @@ import { expect, test } from 'vitest'
 import { folders, functions } from './folders.ts'
 
 // A user copies index.ts alone, so it must stand alone and hide nothing from the checks here.
-const files = 'bench.json,cases.bench.ts,cases.test.ts,cases.ts,index.ts,properties.test.ts'
+const files = 'bench.json,cases.bench.ts,cases.test.ts,cases.ts,index.ts,meta.ts,properties.test.ts'
 const read = (name: string) => readFileSync(new URL(`${name}/index.ts`, functions), 'utf8')
 
 test('every function folder holds exactly its files', () => {

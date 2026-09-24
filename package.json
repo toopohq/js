@@ -5,11 +5,13 @@
   "packageManager": "pnpm@12.5.1",
   "scripts": {
     "check": "biome ci --error-on-warnings && tsc && tsc -p tsconfig.baseline.json && knip && vitest run && stryker run",
-    "bench": "vitest bench --run"
+    "bench": "vitest bench --run",
+    "emit": "node tooling/emit.ts"
   },
   "knip": {
     "entry": [
-      ".claude/hook.mjs"
+      ".claude/hook.mjs",
+      "functions/*/*/meta.ts"
     ]
   },
   "devDependencies": {
