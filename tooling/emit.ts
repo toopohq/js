@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { fileURLToPath } from 'node:url'
@@ -9,18 +9,17 @@ const root = fileURLToPath(new URL('../', import.meta.url))
 const biome = `${root}node_modules/@biomejs/biome/bin/biome`
 
 // Types erased to whitespace, then formatted: the .js keeps the header, comments and blank lines.
+// ponytail: one Biome per function, about 335 ms warm, so about 35 s for 100 functions; past
+// that, one `biome format` over the whole stripped tree.
 function strip(source: string): string {
-  const format = [biome, 'format', '--stdin-file-path=index.js']
-  const run = spawnSync(process.execPath, format, {
+  const run = spawnSync(process.execPath, [biome, 'format', '--stdin-file-path=index.js'], {
     cwd: root,
     input: stripTypeScriptTypes(source),
     encoding: 'utf8',
   })
-  if (run.status !== 0) throw new Error(run.stderr)
+  if (run.status !== 0) throw run.error ?? new Error(`biome format: ${run.stderr || run.signal}`)
   return run.stdout
 }
-
-const sha256 = (text: string) => createHash('sha256').update(text).digest('hex')
 
 // A function folder as the files the registry serves, by their path from its root.
 export async function emit(name: string): Promise<Map<string, string>> {
@@ -34,8 +33,8 @@ export async function emit(name: string): Promise<Map<string, string>> {
     version: meta.version,
     summary: meta.summary,
     emissions: {
-      ts: { path: `${address}.ts`, sha256: sha256(ts) },
-      js: { path: `${address}.js`, sha256: sha256(js) },
+      ts: { path: `${address}.ts`, sha256: hash('sha256', ts) },
+      js: { path: `${address}.js`, sha256: hash('sha256', js) },
     },
     dependencies: [],
   }

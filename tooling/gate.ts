@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { hash } from 'node:crypto'
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -10,9 +10,7 @@ import { expect, TestRunner, test } from 'vitest'
 const noise = 1.03
 
 function digest(folder: URL): string {
-  return createHash('sha256')
-    .update(readFileSync(new URL('index.ts', folder)))
-    .digest('hex')
+  return hash('sha256', readFileSync(new URL('index.ts', folder)))
 }
 
 // A figure is fresh when it carries the digest of the index.ts beside it.
