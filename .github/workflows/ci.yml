@@ -49,3 +49,17 @@ jobs:
           if { echo "$TITLE"; echo "$BODY"; git log --format=%B "$RANGE"; } | grep -E 'Co-[Aa]uthored-[Bb]y|Claude|Generated with'; then
             echo "::error::Assistant attribution in the title, the body or a commit"; exit 1
           fi
+      - name: Deploy to toopo.dev, and the deployment serves every file
+        if: github.event_name == 'push'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler.ndjson
+        run: |
+          pnpm emit
+          npx --yes wrangler@4.137.0 pages deploy dist --project-name=toopo-js --branch=main
+          url=$(jq -r 'select(.type == "pages-deploy-detailed").url' "$WRANGLER_OUTPUT_FILE_PATH")
+          cd dist
+          for file in js/*/*.*; do curl -fsS "$url/$file" | cmp - "$file"; done
+          for file in js/*/*.json; do curl -fsS "$url/${file%.json}" | cmp - "$file"; done
+          for file in js/*/*.[jt]s; do curl -fsS -o /dev/null -w '%{content_type}' "$url/$file" | grep -q 'charset=utf-8$'; done

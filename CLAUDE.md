@@ -37,10 +37,12 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 
 - `pnpm install`
 - `pnpm check` — Biome (a warning fails), `tsc` over both configs, knip, Vitest, then Stryker.
-  CI runs the same, plus the pull request checks, which run even when `pnpm check` fails.
+  CI runs the same, plus the pull request checks, which run even when `pnpm check` fails. On
+  `main`, it then deploys `dist/` to `toopo.dev` and fails unless the site serves every file.
 - `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
   five rounds in one run, and fails past 3 %; records the figure when `index.ts` changed and passed.
-- `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored.
+- `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored, with
+  `_redirects`, which serves each record at its address, and `_headers`, the content types.
 
 ## Non-negotiables
 

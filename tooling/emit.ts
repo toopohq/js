@@ -54,4 +54,15 @@ if (import.meta.main) {
       mkdirSync(new URL('./', file), { recursive: true })
       writeFileSync(file, text)
     }
+  // Pages redirects even over an asset, and a placeholder matches a dot: one static rule each.
+  // ponytail: Pages takes 2,000 static rules, so 2,000 functions; past that, a Worker.
+  const rules = folders.map((name) => `/js/${name} /js/${name}.json 200\n`)
+  writeFileSync(new URL('_redirects', dist), rules.join(''))
+  // Pages serves .ts as video/mp2t and names no charset, which a browser needs to show `…`.
+  const headers = `/js/*.ts
+  Content-Type: text/plain; charset=utf-8
+/js/*.js
+  Content-Type: text/javascript; charset=utf-8
+`
+  writeFileSync(new URL('_headers', dist), headers)
 }
