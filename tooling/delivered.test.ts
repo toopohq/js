@@ -6,6 +6,13 @@ import { folders, functions } from './folders.ts'
 const files = 'bench.json,cases.bench.ts,cases.test.ts,cases.ts,index.ts,meta.ts,properties.test.ts'
 const read = (name: string) => readFileSync(new URL(`${name}/index.ts`, functions), 'utf8')
 
+// A block comment becomes line comments, so the two checks over shapes below read one form.
+const lines = (name: string) =>
+  read(name)
+    .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/^/gm, '//'))
+    .split('\n')
+    .map((line) => line.trim())
+
 test('every function folder holds exactly its files', () => {
   const entries = (name: string) =>
     readdirSync(new URL(`${name}/`, functions))
@@ -37,14 +44,20 @@ test('every delivered file imports nothing and escapes no check', () => {
 // a trailing comment is not counted.
 test('every delivered file is under 10 % comment, its address aside', () => {
   const dense = folders.filter((name) => {
-    const lines = read(name)
-      .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/^/gm, '//'))
-      .split('\n')
-      .slice(1)
-      .map((line) => line.trim())
-      .filter(Boolean)
-    const comments = lines.filter((line) => line.startsWith('//'))
-    return comments.length * 10 >= lines.length
+    const body = lines(name).slice(1).filter(Boolean)
+    return body.filter((line) => line.startsWith('//')).length * 10 >= body.length
   })
   expect(dense).toEqual([])
+})
+
+// ponytail: the comment lines go first, `as` being a common English word; one inside a string
+// literal still counts, erring strict as the check above does. `satisfies` is not here: it checks
+// a type rather than asserting one.
+test('every delivered file states its types rather than asserting them', () => {
+  const asserted = /\bas\b|\bany\b|[\w)\]]!\s*[.,;)\]]/
+  const code = (name: string) =>
+    lines(name)
+      .filter((line) => !line.startsWith('//'))
+      .join('\n')
+  expect(folders.filter((name) => asserted.test(code(name)))).toEqual([])
 })
