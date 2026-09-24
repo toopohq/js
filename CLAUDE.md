@@ -7,10 +7,15 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 
 - `functions/<domain>/<name>/` — one function. `index.ts` is the delivered file; `cases.bench.ts`
   exports `load`, its loop over the case table, and passes it to the gate; `bench.json` is its
-  figure, with the digest of `index.ts`.
+  figure, with the digest of `index.ts`; `meta.ts` holds its version and its summary.
 - `functions/LICENSE` — MIT-0 for everything under `functions/`; the repository is MIT.
 - `tooling/folders.ts` — every function folder as `<domain>/<name>`, for the guards below.
 - `tooling/gate.ts` — the benchmark gate: main's `index.ts` against the branch's, then the figure.
+- `tooling/emit.ts` — the emitter: a function folder as the registry serves it, `js/<domain>/<name>`
+  `.ts`, `.js` and `.json`, its record.
+- `tooling/emit.test.ts` — the guard: the emitted `.js` does what `index.ts` does on every input
+  of the case table, `.ts` is `index.ts`, and every emission the record names is in the tree under
+  its digest.
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
 - `tooling/figures.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
 - `tooling/delivered.test.ts` — the guard: a function folder holds exactly its files, and its
@@ -33,6 +38,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
   CI runs the same, plus the pull request checks, which run even when `pnpm check` fails.
 - `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
   five rounds in one run, and fails past 3 %; records the figure when `index.ts` changed and passed.
+- `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored.
 
 ## Non-negotiables
 
