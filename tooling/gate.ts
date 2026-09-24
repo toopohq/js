@@ -4,10 +4,10 @@ import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'no
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { type Bench, expect } from 'vitest'
+import { expect, TestRunner, test } from 'vitest'
 
-// Thirty runs with the same code on both sides came within 9.9 %; past 11 % the branch is slower.
-const noise = 1.11
+// Same code on both sides: 54 of 55 runs within 2.2 %, on one machine. Past 3 %, the gate fails.
+const noise = 1.03
 
 function digest(folder: URL): string {
   return createHash('sha256')
@@ -41,30 +41,39 @@ function median(values: number[]): number {
 
 // Main and the branch are timed in the same run, so the machine, its power and Node cancel out;
 // in five rounds, the order alternating, so a disturbance or the second slot favours neither side.
-export async function gate<F extends (...args: never) => unknown>(
-  bench: Bench,
+// Called at the top level of a bench file, with `load`, its loop over a version, exported too.
+export function gate<F extends (...args: never) => unknown>(
   at: string,
   current: F,
   calls: number,
   load: (fn: F) => () => unknown,
-): Promise<void> {
-  const folder = new URL('./', at)
-  const main = await previous<F>(folder, current.name)
-  const [before, after] = [main ? load(main) : undefined, load(current)]
-  const [p50s, ratios]: [number[], number[]] = [[], []]
-  for (let round = 0; round < 5; round++) {
-    if (!before) {
-      p50s.push((await bench('branch', after).run()).latency.p50)
-      continue
+) {
+  // Main's loop comes from the bench file imported again under `?main`: closures from one site
+  // share V8's feedback, so one call site reaching both versions turns megamorphic. That copy is
+  // evaluated inside the running test, so its own call here registers nothing.
+  if (TestRunner.getCurrentTest()) return
+  test('the case table against main', async ({ bench }) => {
+    const folder = new URL('./', at)
+    const main = await previous<F>(folder, current.name)
+    const before: (() => unknown) | undefined = main && (await import(`${at}?main`)).load(main)
+    const after = load(current)
+    const [p50s, ratios]: [number[], number[]] = [[], []]
+    for (let round = 0; round < 5; round++) {
+      if (!before) {
+        p50s.push((await bench('branch', after).run()).latency.p50)
+        continue
+      }
+      const pair = [bench('main', before), bench('branch', after)]
+      const result = await bench.compare(...(round % 2 ? pair.reverse() : pair))
+      p50s.push(result.get('branch').latency.p50)
+      ratios.push(result.get('branch').latency.p50 / result.get('main').latency.p50)
     }
-    const pair = [bench('main', before), bench('branch', after)]
-    const result = await bench.compare(...(round % 2 ? pair.reverse() : pair))
-    p50s.push(result.get('branch').latency.p50)
-    ratios.push(result.get('branch').latency.p50 / result.get('main').latency.p50)
-  }
-  if (before) expect(median(ratios), 'slower than main beyond the noise').toBeLessThanOrEqual(noise)
-  if (fresh(folder)) return
-  // The median per call, in nanoseconds: it holds when the case table grows.
-  const figure = { sha256: digest(folder), p50: Number(((median(p50s) * 1e6) / calls).toFixed(1)) }
-  writeFileSync(new URL('bench.json', folder), `${JSON.stringify(figure, null, 2)}\n`)
+    if (before)
+      expect(median(ratios), 'slower than main beyond the noise').toBeLessThanOrEqual(noise)
+    if (fresh(folder)) return
+    // The median per call, in nanoseconds: it holds when the case table grows.
+    const p50 = Number(((median(p50s) * 1e6) / calls).toFixed(1))
+    const figure = { sha256: digest(folder), p50 }
+    writeFileSync(new URL('bench.json', folder), `${JSON.stringify(figure, null, 2)}\n`)
+  })
 }
