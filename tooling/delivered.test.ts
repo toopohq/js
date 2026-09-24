@@ -31,17 +31,17 @@ test('every delivered file opens on its address and names no licence', () => {
   expect(odd).toEqual([])
 })
 
-// ponytail: a regex over the text, since TypeScript 7 has no JS API to parse with. It refuses the
-// word in a comment or a string too, and misses `new Function('return process')()`, which passes
-// tsc and the regex alike: a deliberate bypass that only review catches.
+// A regex over the text, since TypeScript 7 has no JS API to parse with. It refuses the word in a
+// comment or a string too, and misses `new Function('return process')()`, which passes tsc and the
+// regex alike: a deliberate bypass that only review catches.
 test('every delivered file imports nothing and escapes no check', () => {
   const outside =
     /\bimport\b|\brequire\b|\bfrom\s*['"]|^\s*\/\/\/|@ts-|\bdeclare\b|Stryker|biome-ignore/m
   expect(folders.filter((name) => outside.test(read(name)))).toEqual([])
 })
 
-// ponytail: a `/*` inside a string or a regex opens a comment here, so the check errs strict, and
-// a trailing comment is not counted.
+// A `/*` inside a string or a regex opens a comment here, so the check errs strict, and a trailing
+// comment is not counted.
 test('every delivered file is under 10 % comment, its address aside', () => {
   const dense = folders.filter((name) => {
     const body = lines(name).slice(1).filter(Boolean)
@@ -50,9 +50,9 @@ test('every delivered file is under 10 % comment, its address aside', () => {
   expect(dense).toEqual([])
 })
 
-// ponytail: the comment lines go first, `as` being a common English word; one inside a string
-// literal still counts, erring strict as the check above does. `satisfies` is not here: it checks
-// a type rather than asserting one.
+// The comment lines go first, `as` being a common English word; one inside a string literal still
+// counts, erring strict as the check above does. `satisfies` is not here: it checks a type rather
+// than asserting one.
 test('every delivered file states its types rather than asserting them', () => {
   const asserted = /\bas\b|\bany\b|[\w)\]]!\s*[.,;)\]]/
   const code = (name: string) =>
