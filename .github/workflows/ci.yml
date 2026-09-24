@@ -29,10 +29,10 @@ jobs:
       - name: One function folder per pull request
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         env:
-          RANGE: ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }}
+          RANGE: ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
         run: |
-          touched=$(git diff --name-only "$RANGE" -- functions | grep -E "^functions/[^/]+/[^/]+/" | cut -d/ -f2,3 | sort -u || true)
-          [ "$(grep -c . <<< "$touched")" -le 1 ] || { echo "::error::One function folder per pull request: $touched"; exit 1; }
+          touched=$(git diff --name-only "$RANGE" -- 'functions/*/*/*' | cut -d/ -f2,3 | sort -u)
+          [ "$(grep -c . <<< "$touched")" -le 1 ] || { echo "::error::One function folder per pull request:" $touched; exit 1; }
       - name: Title, sign-off, no assistant attribution
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         env:

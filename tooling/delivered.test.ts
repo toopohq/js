@@ -1,17 +1,11 @@
 import { readdirSync, readFileSync } from 'node:fs'
+import { stripTypeScriptTypes } from 'node:module'
 import { expect, test } from 'vitest'
 import { folders, functions } from './folders.ts'
 
 // A user copies index.ts alone, so it must stand alone and hide nothing from the checks here.
 const files = 'bench.json,cases.bench.ts,cases.test.ts,cases.ts,index.ts,meta.ts,properties.test.ts'
 const read = (name: string) => readFileSync(new URL(`${name}/index.ts`, functions), 'utf8')
-
-// A block comment becomes line comments, so the two checks over shapes below read one form.
-const lines = (name: string) =>
-  read(name)
-    .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/^/gm, '//'))
-    .split('\n')
-    .map((line) => line.trim())
 
 test('every function folder holds exactly its files', () => {
   const entries = (name: string) =>
@@ -31,33 +25,36 @@ test('every delivered file opens on its address and names no licence', () => {
   expect(odd).toEqual([])
 })
 
-// ponytail: a regex over the text, since TypeScript 7 has no JS API to parse with. It refuses the
-// word in a comment or a string too, and misses `new Function('return process')()`, which passes
-// tsc and the regex alike: a deliberate bypass that only review catches.
+// A regex over the text, since TypeScript 7 has no JS API to parse with. It refuses the word in a
+// comment or a string too, and misses `new Function('return process')()`, which passes tsc and the
+// regex alike: a deliberate bypass that only review catches.
 test('every delivered file imports nothing and escapes no check', () => {
   const outside =
     /\bimport\b|\brequire\b|\bfrom\s*['"]|^\s*\/\/\/|@ts-|\bdeclare\b|Stryker|biome-ignore/m
   expect(folders.filter((name) => outside.test(read(name)))).toEqual([])
 })
 
-// ponytail: a `/*` inside a string or a regex opens a comment here, so the check errs strict, and
-// a trailing comment is not counted.
+// A `/*` inside a string or a regex opens a comment here, so the check errs strict, and a trailing
+// comment is not counted.
 test('every delivered file is under 10 % comment, its address aside', () => {
   const dense = folders.filter((name) => {
-    const body = lines(name).slice(1).filter(Boolean)
+    const body = read(name)
+      .replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/^/gm, '//'))
+      .split('\n')
+      .slice(1)
+      .map((line) => line.trim())
+      .filter(Boolean)
     return body.filter((line) => line.startsWith('//')).length * 10 >= body.length
   })
   expect(dense).toEqual([])
 })
 
-// ponytail: the comment lines go first, `as` being a common English word; one inside a string
-// literal still counts, erring strict as the check above does. `satisfies` is not here: it checks
-// a type rather than asserting one.
+// Node's stripper blanks type syntax in place, so an `as` it blanks is an assertion and one in a
+// comment or a string is not. Biome refuses `any` and `!`; `tsc` refuses `<T>x`.
 test('every delivered file states its types rather than asserting them', () => {
-  const asserted = /\bas\b|\bany\b|[\w)\]]!\s*[.,;)\]]/
-  const code = (name: string) =>
-    lines(name)
-      .filter((line) => !line.startsWith('//'))
-      .join('\n')
-  expect(folders.filter((name) => asserted.test(code(name)))).toEqual([])
+  const asserts = (text: string) => {
+    const js = stripTypeScriptTypes(text)
+    return [...text.matchAll(/\bas\b/g)].some(({ index }) => js[index] === ' ')
+  }
+  expect(folders.filter((name) => asserts(read(name)))).toEqual([])
 })
