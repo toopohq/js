@@ -43,8 +43,10 @@ function refuse(path, text) {
 
 if (process.argv[2] === '--all') {
   const args = ['ls-files', '-z', '--cached', '--others', '--exclude-standard']
-  const files = execFileSync('git', args, { encoding: 'utf8' }).split('\0').filter(existsSync)
-  for (const path of files) refuse(path, () => readFileSync(path, 'utf8'))
+  const listed = execFileSync('git', args, { encoding: 'utf8', maxBuffer: Infinity })
+  for (const path of listed.split('\0').filter(existsSync)) {
+    refuse(path, () => readFileSync(path, 'utf8'))
+  }
   process.exit(0)
 }
 
