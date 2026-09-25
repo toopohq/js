@@ -6,7 +6,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 ## Structure
 
 - `functions/<domain>/<name>/` — one function. `index.ts` is the delivered file; `cases.bench.ts`
-  exports `load`, its loop over the case table, and passes it to the gate; `bench.json` is its
+  exports `load`, its loop over the case table, and calls the gate; `bench.json` is its
   receipt, the digest of the `index.ts` the gate passed; `meta.ts` holds its version and summary.
 - `functions/LICENSE` — MIT-0 for everything under `functions/`; the repository is MIT.
 - `tooling/folders.ts` — every function folder as `<domain>/<name>`, for the guards below.

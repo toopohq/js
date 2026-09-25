@@ -19,4 +19,4 @@ export const load = (cut: typeof truncate) => () => {
   return units
 }
 
-gate(import.meta.url, truncate, load)
+gate(import.meta.url, truncate)
