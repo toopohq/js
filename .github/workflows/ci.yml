@@ -73,7 +73,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           sparse-checkout: .github/deploy
-          persist-credentials: false
       - uses: actions/download-artifact@v8
         with:
           name: dist
