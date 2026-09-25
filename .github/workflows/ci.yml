@@ -60,15 +60,36 @@ jobs:
               $served[0] as $s | v > ($s | v) or (v == ($s | v) and .emissions == $s.emissions)' "$record" > /dev/null \
               || { echo "::error::$address: toopo.dev serves $(jq -r .version "$RUNNER_TEMP/served.json"), this is $(jq -r .version "$record") with other emissions or below it"; exit 1; }
           done
-      - name: Deploy to toopo.dev, and the deployment serves every file
+      - uses: actions/upload-artifact@v7
         if: github.event_name == 'push'
+        with:
+          name: dist
+          path: dist
+  deploy:
+    needs: ci
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/deploy
+          persist-credentials: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: dist
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts --prefix .github/deploy
+      - name: Deploy to toopo.dev, and the deployment serves every file
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler.ndjson
         run: |
+          .github/deploy/node_modules/.bin/wrangler pages deploy dist --project-name=toopo-js --branch=main
           cd dist
-          npx --yes wrangler@4.137.0 pages deploy . --project-name=toopo-js --branch=main
           url=$(jq -er 'select(.type == "pages-deploy-detailed" and .environment == "production").url' "$WRANGLER_OUTPUT_FILE_PATH")
           get() { curl -fsS --retry 3 --retry-all-errors "$@"; }
           for file in js/*/*.*; do get "$url/$file" | cmp - "$file"; done

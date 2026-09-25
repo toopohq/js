@@ -27,6 +27,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `.claude/hook.mjs` — refuses a root entry outside its allowlist, any `CLAUDE.md` past 150 lines
   and a `dependencies` field; formats and lints every file written. It sees Write and Edit, and a
   shell bypasses it, so `--all` refuses the same over every file git lists.
+- `.github/deploy/` — wrangler, its whole tree locked, which the deploy job alone installs.
 - `DECISIONS.md` — one line per decision.
 
 `spec` (`@toopo/spec`) is a devDependency from GitHub; the lockfile pins its commit, and
@@ -38,8 +39,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `pnpm check` — the hook's `--all`, Biome (a warning fails), `tsc` over both configs, knip,
   Vitest, then Stryker. CI runs the same, plus the pull request checks and the served-version
   guard, a version `toopo.dev` serves keeps its emissions and none goes back, all of which run even
-  when `pnpm check` fails. On `main`, it then deploys `dist/` to `toopo.dev` and fails unless the
-  site serves every file.
+  when `pnpm check` fails. On `main`, a job of its own, which runs no code of this repository,
+  then deploys that run's `dist/` to `toopo.dev` and fails unless the site serves every file.
 - `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
   five rounds in one run, and fails past 3 %; a changed `index.ts` that passes gets its receipt.
 - `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored, with
