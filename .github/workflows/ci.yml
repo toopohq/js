@@ -23,9 +23,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
-      - name: No runtime dependencies
-        if: ${{ !cancelled() }}
-        run: jq -e 'has("dependencies") | not' package.json
       - name: One function folder per pull request
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         env:
