@@ -177,7 +177,7 @@ importers:
         version: 10.0.0(@stryker-mutator/core@10.0.0(@types/node@24.13.6))(vitest@5.0.1(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(jiti@2.7.0)(yaml@2.9.1)))
       '@toopo/spec':
         specifier: github:toopohq/spec
-        version: https://codeload.github.com/toopohq/spec/tar.gz/95aec9477b6be6073ed0e80358b948653673456e
+        version: https://codeload.github.com/toopohq/spec/tar.gz/838abf3d11395817c784762f35467c8311c76f07
       '@types/node':
         specifier: 24.13.6
         version: 24.13.6
@@ -958,8 +958,8 @@ packages:
       '@stryker-mutator/core': 10.0.0
       vitest: '>=2.0.0'
 
-  '@toopo/spec@https://codeload.github.com/toopohq/spec/tar.gz/95aec9477b6be6073ed0e80358b948653673456e':
-    resolution: {gitHosted: true, integrity: sha512-fCXGxZ1amYCazDSMb1JcLNNLLl2jT6XSKracbtq7yaRkbxDrRJ0hCXKBlRuB4bhQZL6vIa0wEhmbdXLgmWD91g==, tarball: https://codeload.github.com/toopohq/spec/tar.gz/95aec9477b6be6073ed0e80358b948653673456e}
+  '@toopo/spec@https://codeload.github.com/toopohq/spec/tar.gz/838abf3d11395817c784762f35467c8311c76f07':
+    resolution: {gitHosted: true, integrity: sha512-9lScDgJTZpmcRv/FXZfigHGZxbAA2T9Yzh8ctoa7Ez/fLMR6o0ZUZxF0QAsZOg5nln34l6hEazSw3GrHmqkCgA==, tarball: https://codeload.github.com/toopohq/spec/tar.gz/838abf3d11395817c784762f35467c8311c76f07}
 
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
@@ -2463,7 +2463,7 @@ snapshots:
       tslib: 2.8.1
       vitest: 5.0.1(@types/node@24.13.6)(vite@8.3.0(@types/node@24.13.6)(jiti@2.7.0)(yaml@2.9.1))
 
-  '@toopo/spec@https://codeload.github.com/toopohq/spec/tar.gz/95aec9477b6be6073ed0e80358b948653673456e': {}
+  '@toopo/spec@https://codeload.github.com/toopohq/spec/tar.gz/838abf3d11395817c784762f35467c8311c76f07': {}
 
   '@tybys/wasm-util@0.10.4':
     dependencies:

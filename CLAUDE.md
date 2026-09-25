@@ -14,8 +14,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `tooling/emit.ts` — the emitter: a function folder as the registry serves it, `js/<domain>/<name>`
   `.ts`, `.js` and `.json`, its record.
 - `tooling/emit.test.ts` — the guard: the emitted `.js` does what `index.ts` does on every input
-  of the case table, `.ts` is `index.ts`, and every emission the record names is in the tree under
-  its digest.
+  of the case table, `.ts` is `index.ts`, the record's `exports` are the `.js`'s, at least one and
+  no `default`, and every emission the record names is in the tree under its digest.
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
 - `tooling/figures.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
 - `tooling/delivered.test.ts` — the guard: a function folder holds exactly its files, and its

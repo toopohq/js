@@ -3,6 +3,7 @@ import { hash } from 'node:crypto'
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import type { ServedRecord } from '@toopo/spec/record'
 import { folders, functions } from './folders.ts'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -25,13 +26,16 @@ function strip(source: string): string {
 export async function emit(name: string): Promise<Map<string, string>> {
   const folder = new URL(`${name}/`, functions)
   const meta: { version: string; summary: string } = await import(new URL('meta.ts', folder).href)
-  const ts = readFileSync(new URL('index.ts', folder), 'utf8')
+  const index = new URL('index.ts', folder)
+  const ts = readFileSync(index, 'utf8')
   const js = strip(ts)
   const address = `js/${name}`
-  const record = {
+  const record: ServedRecord = {
     address,
     version: meta.version,
     summary: meta.summary,
+    // A type leaves no key. Sorted: Node sorts a module's keys, Vitest's runner keeps source order.
+    exports: Object.keys(await import(index.href)).sort(),
     emissions: {
       ts: { path: `${address}.ts`, sha256: hash('sha256', ts) },
       js: { path: `${address}.js`, sha256: hash('sha256', js) },
