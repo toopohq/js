@@ -34,8 +34,8 @@ export async function emit(name: string): Promise<Map<string, string>> {
     address,
     version: meta.version,
     summary: meta.summary,
-    // The values only: a type leaves no key.
-    exports: Object.keys(await import(index.href)),
+    // A type leaves no key. Sorted: Node sorts a module's keys, Vitest's runner keeps source order.
+    exports: Object.keys(await import(index.href)).sort(),
     emissions: {
       ts: { path: `${address}.ts`, sha256: hash('sha256', ts) },
       js: { path: `${address}.js`, sha256: hash('sha256', js) },
