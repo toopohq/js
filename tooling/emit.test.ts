@@ -31,6 +31,7 @@ test.for(folders)('%s emits index.ts, its .js and their record', async (name) =>
   const record = JSON.parse(tree.get(`js/${name}.json`) ?? '')
   expect(record.version).toMatch(/^\d+\.\d+\.\d+$/)
   expect(record.summary).toMatch(/^[A-Z][^.!?]*\.$/)
+  expect(record.exports).toEqual(Object.keys(js))
   for (const { path, sha256 } of Object.values<{ path: string; sha256: string }>(record.emissions))
     expect(hash('sha256', tree.get(path) ?? '')).toBe(sha256)
 })
