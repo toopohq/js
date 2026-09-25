@@ -13,10 +13,10 @@ function digest(folder: URL): string {
   return hash('sha256', readFileSync(new URL('index.ts', folder)))
 }
 
-// A figure is fresh when it carries the digest of the index.ts beside it.
+// A receipt is fresh when it carries the digest of the index.ts beside it.
 export function fresh(folder: URL): boolean {
-  const figure = new URL('bench.json', folder)
-  return existsSync(figure) && JSON.parse(readFileSync(figure, 'utf8')).sha256 === digest(folder)
+  const receipt = new URL('bench.json', folder)
+  return existsSync(receipt) && JSON.parse(readFileSync(receipt, 'utf8')).sha256 === digest(folder)
 }
 
 // The version on main, imported from a copy; undefined for a function main does not have yet.
@@ -43,7 +43,6 @@ function median(values: number[]): number {
 export function gate<F extends (...args: never) => unknown>(
   at: string,
   current: F,
-  calls: number,
   load: (fn: F) => () => unknown,
 ) {
   // Main's loop comes from the bench file imported again under `?main`: closures from one site
@@ -55,23 +54,18 @@ export function gate<F extends (...args: never) => unknown>(
     const main = await previous<F>(folder, current.name)
     const before: (() => unknown) | undefined = main && (await import(`${at}?main`)).load(main)
     const after = load(current)
-    const [p50s, ratios]: [number[], number[]] = [[], []]
-    for (let round = 0; round < 5; round++) {
-      if (!before) {
-        p50s.push((await bench('branch', after).run()).latency.p50)
-        continue
+    // Nothing to compare: the loop runs once, so a broken `load` fails now rather than later.
+    if (!before) await after()
+    else {
+      const ratios: number[] = []
+      for (let round = 0; round < 5; round++) {
+        const pair = [bench('main', before), bench('branch', after)]
+        const result = await bench.compare(...(round % 2 ? pair.reverse() : pair))
+        ratios.push(result.get('branch').latency.p50 / result.get('main').latency.p50)
       }
-      const pair = [bench('main', before), bench('branch', after)]
-      const result = await bench.compare(...(round % 2 ? pair.reverse() : pair))
-      p50s.push(result.get('branch').latency.p50)
-      ratios.push(result.get('branch').latency.p50 / result.get('main').latency.p50)
-    }
-    if (before)
       expect(median(ratios), 'slower than main beyond the noise').toBeLessThanOrEqual(noise)
-    if (fresh(folder)) return
-    // The median per call, in nanoseconds: it holds when the case table grows.
-    const p50 = Number(((median(p50s) * 1e6) / calls).toFixed(1))
-    const figure = { sha256: digest(folder), p50 }
-    writeFileSync(new URL('bench.json', folder), `${JSON.stringify(figure, null, 2)}\n`)
+    }
+    const receipt = { sha256: digest(folder) }
+    writeFileSync(new URL('bench.json', folder), `${JSON.stringify(receipt, null, 2)}\n`)
   })
 }

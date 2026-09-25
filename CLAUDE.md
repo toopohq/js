@@ -7,17 +7,17 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 
 - `functions/<domain>/<name>/` — one function. `index.ts` is the delivered file; `cases.bench.ts`
   exports `load`, its loop over the case table, and passes it to the gate; `bench.json` is its
-  figure, with the digest of `index.ts`; `meta.ts` holds its version and its summary.
+  receipt, the digest of the `index.ts` the gate passed; `meta.ts` holds its version and summary.
 - `functions/LICENSE` — MIT-0 for everything under `functions/`; the repository is MIT.
 - `tooling/folders.ts` — every function folder as `<domain>/<name>`, for the guards below.
-- `tooling/gate.ts` — the benchmark gate: main's `index.ts` against the branch's, then the figure.
+- `tooling/gate.ts` — the benchmark gate: main's `index.ts` against the branch's, then the receipt.
 - `tooling/emit.ts` — the emitter: a function folder as the registry serves it, `js/<domain>/<name>`
   `.ts`, `.js` and `.json`, its record.
 - `tooling/emit.test.ts` — the guard: the emitted `.js` does what `index.ts` does on every input
   of the case table, `.ts` is `index.ts`, the record's `exports` are the `.js`'s, at least one and
   no `default`, and every emission the record names is in the tree under its digest.
 - `tooling/claims.test.ts` — the guard: every function folder is a name claimed in `spec`.
-- `tooling/figures.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
+- `tooling/receipts.test.ts` — the guard: every `bench.json` carries the digest of its `index.ts`.
 - `tooling/delivered.test.ts` — the guard: a function folder holds exactly its files, and its
   `index.ts` opens on its address, names no licence, imports nothing, escapes no check, states
   its types rather than asserting them, and is under 10 % comment.
@@ -40,7 +40,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
   CI runs the same, plus the pull request checks, which run even when `pnpm check` fails. On
   `main`, it then deploys `dist/` to `toopo.dev` and fails unless the site serves every file.
 - `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
-  five rounds in one run, and fails past 3 %; records the figure when `index.ts` changed and passed.
+  five rounds in one run, and fails past 3 %; a changed `index.ts` that passes gets its receipt.
 - `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored, with
   `_redirects`, which serves each record at its address, and `_headers`, the content types.
 
