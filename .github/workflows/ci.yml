@@ -87,6 +87,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler.ndjson
         run: |
+          [ "$(git ls-remote origin refs/heads/main | cut -f1)" = "$GITHUB_SHA" ] || { echo "::error::main is past $GITHUB_SHA: its head's run deploys"; exit 1; }
           .github/deploy/node_modules/.bin/wrangler pages deploy dist --project-name=toopo-js --branch=main
           cd dist
           url=$(jq -er 'select(.type == "pages-deploy-detailed" and .environment == "production").url' "$WRANGLER_OUTPUT_FILE_PATH")

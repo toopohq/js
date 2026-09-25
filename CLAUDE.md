@@ -40,7 +40,8 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
   Vitest, then Stryker. CI runs the same, plus the pull request checks and the served-version
   guard, a version `toopo.dev` serves keeps its emissions and none goes back, all of which run even
   when `pnpm check` fails. On `main`, a job of its own, which runs no code of this repository,
-  then deploys that run's `dist/` to `toopo.dev` and fails unless the site serves every file.
+  then deploys that run's `dist/` to `toopo.dev`. It fails before deploying a commit `main` has
+  moved past, and after unless the site serves every file.
 - `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
   five rounds in one run, and fails past 3 %; a changed `index.ts` that passes gets its receipt.
 - `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored, with
