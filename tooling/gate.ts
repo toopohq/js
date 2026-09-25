@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { expect, TestRunner, test } from 'vitest'
 
-// Same code on both sides: 54 of 55 runs within 2.2 %, on one machine. Past 3 %, the gate fails.
+// Same code on both sides: 30 of 30 runs within 0.9 %, on one machine. Past 3 %, the gate fails.
 const noise = 1.03
 
 function digest(folder: URL): string {
@@ -19,14 +19,20 @@ export function fresh(folder: URL): boolean {
   return existsSync(receipt) && JSON.parse(readFileSync(receipt, 'utf8')).sha256 === digest(folder)
 }
 
-// The version on main, imported from a copy; undefined for a function main does not have yet.
-async function previous<F>(folder: URL, name: string): Promise<F | undefined> {
+// The index.ts of origin/main, or undefined for a function main does not have yet.
+function previous(folder: URL): string | undefined {
   const git = (...args: string[]) =>
     execFileSync('git', args, { cwd: fileURLToPath(folder), encoding: 'utf8' })
-  if (!git('ls-tree', '--name-only', 'origin/main', '--', 'index.ts')) return undefined
+  return git('ls-tree', '--name-only', 'origin/main', '--', 'index.ts')
+    ? git('show', 'origin/main:./index.ts')
+    : undefined
+}
+
+// A version imported from a copy of its source, in a folder of its own: a new module, compiled anew.
+async function compiled(source: string | Buffer, name: string): Promise<unknown> {
   const copy = mkdtempSync(join(tmpdir(), 'toopo-'))
   try {
-    writeFileSync(join(copy, 'index.ts'), git('show', 'origin/main:./index.ts'))
+    writeFileSync(join(copy, 'index.ts'), source)
     return (await import(pathToFileURL(join(copy, 'index.ts')).href))[name]
   } finally {
     rmSync(copy, { recursive: true })
@@ -38,34 +44,37 @@ function median(values: number[]): number {
 }
 
 // Main and the branch are timed in the same run, so the machine, its power and Node cancel out;
-// in five rounds, the order alternating, so a disturbance or the second slot favours neither side.
-// Called at the top level of a bench file, with `load`, its loop over a version, exported too.
-export function gate<F extends (...args: never) => unknown>(
-  at: string,
-  current: F,
-  load: (fn: F) => () => unknown,
-) {
-  // Main's loop comes from the bench file imported again under `?main`: closures from one site
-  // share V8's feedback, so one call site reaching both versions turns megamorphic. That copy is
-  // evaluated inside the running test, so its own call here registers nothing.
+// in five rounds, the order alternating, so a disturbance or the second slot favours neither side;
+// each round compiling both sides anew, so a compilation that lands slow weighs one round of five.
+// Called at the top level of a bench file that exports `load`, its loop over a version.
+export function gate(at: string, current: (...args: never) => unknown) {
+  // A side's loop comes from the bench file imported again under a query of its own: closures
+  // from one site share V8's feedback, so one loop reaching two versions turns megamorphic. Those
+  // copies are evaluated inside the running test, so their own call here registers nothing.
   if (TestRunner.getCurrentTest()) return
   test('the case table against main', async ({ bench }) => {
     const folder = new URL('./', at)
-    const main = await previous<F>(folder, current.name)
-    const before: (() => unknown) | undefined = main && (await import(`${at}?main`)).load(main)
-    const after = load(current)
+    const main = previous(folder)
+    // Read once, so the receipt carries the digest of the bytes timed, whatever the file becomes.
+    const branch = readFileSync(new URL('index.ts', folder))
     // Nothing to compare: the loop runs once, so a broken `load` fails now rather than later.
-    if (!before) await after()
+    if (main === undefined) await (await import(`${at}?branch`)).load(current)()
     else {
+      const sources = { main, branch }
       const ratios: number[] = []
       for (let round = 0; round < 5; round++) {
-        const pair = [bench('main', before), bench('branch', after)]
+        const pair = []
+        for (const side of ['main', 'branch'] as const) {
+          const version = await compiled(sources[side], current.name)
+          expect(version, `${side}'s index.ts exports no ${current.name}`).toBeTypeOf('function')
+          pair.push(bench(side, (await import(`${at}?${side}${round}`)).load(version)))
+        }
         const result = await bench.compare(...(round % 2 ? pair.reverse() : pair))
         ratios.push(result.get('branch').latency.p50 / result.get('main').latency.p50)
       }
       expect(median(ratios), 'slower than main beyond the noise').toBeLessThanOrEqual(noise)
     }
-    const receipt = { sha256: digest(folder) }
+    const receipt = { sha256: hash('sha256', branch) }
     writeFileSync(new URL('bench.json', folder), `${JSON.stringify(receipt, null, 2)}\n`)
   })
 }
