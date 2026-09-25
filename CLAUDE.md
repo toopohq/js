@@ -24,10 +24,9 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 - `tsconfig.json` — everything, newest TypeScript and Node types.
 - `tsconfig.baseline.json` — the delivered files alone, against the baseline `lib` and no types.
 - `stryker.config.json` — mutation testing over every delivered file; one surviving mutant fails.
-- `.claude/hook.mjs` — fast feedback for Claude Code, not enforcement: it sees that tool's writes
-  and a shell bypasses it. Refuses a root entry outside its allowlist, a `dependencies` field in
-  `package.json` — CI refuses that one too — and a `CLAUDE.md` past 150 lines; formats and lints
-  every file written.
+- `.claude/hook.mjs` — refuses a root entry outside its allowlist, any `CLAUDE.md` past 150 lines
+  and a `dependencies` field; formats and lints every file written. It sees Write and Edit, and a
+  shell bypasses it, so `--all` refuses the same over every file git lists.
 - `DECISIONS.md` — one line per decision.
 
 `spec` (`@toopo/spec`) is a devDependency from GitHub; the lockfile pins its commit, and
@@ -36,9 +35,10 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 ## Commands
 
 - `pnpm install`
-- `pnpm check` — Biome (a warning fails), `tsc` over both configs, knip, Vitest, then Stryker.
-  CI runs the same, plus the pull request checks, which run even when `pnpm check` fails. On
-  `main`, it then deploys `dist/` to `toopo.dev` and fails unless the site serves every file.
+- `pnpm check` — the hook's `--all`, Biome (a warning fails), `tsc` over both configs, knip,
+  Vitest, then Stryker. CI runs the same, plus the pull request checks, which run even when
+  `pnpm check` fails. On `main`, it then deploys `dist/` to `toopo.dev` and fails unless the site
+  serves every file.
 - `pnpm bench` — locally, never in CI. Times each function against its version on `origin/main`,
   five rounds in one run, and fails past 3 %; a changed `index.ts` that passes gets its receipt.
 - `pnpm emit` — writes the served tree of the whole catalogue to `dist/`, gitignored, with
@@ -46,7 +46,7 @@ each, zero dependencies. TypeScript is the source; `.ts` and `.js` are two emiss
 
 ## Non-negotiables
 
-- Zero runtime dependencies: `package.json` has no `dependencies` field. The hook and CI refuse one.
+- Zero runtime dependencies: `pnpm check` refuses a `dependencies` field.
 - A function folder is a name claimed in `spec`. Claim it there first.
 - A source file is at most 150 lines, a function at most 40. Biome enforces both.
 - A pull request touches at most one function folder. CI refuses otherwise.
