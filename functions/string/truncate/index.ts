@@ -10,4 +10,3 @@ export function truncate(text: string, length: number, omission = '…'): string
   if (unit >= 0xd800 && unit <= 0xdbff) cut--
   return text.slice(0, cut) + omission
 }
-
