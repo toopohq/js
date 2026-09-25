@@ -55,7 +55,7 @@ export function gate<F extends (...args: never) => unknown>(
     const before: (() => unknown) | undefined = main && (await import(`${at}?main`)).load(main)
     const after = load(current)
     // Nothing to compare: the loop runs once, so a broken `load` fails now rather than later.
-    if (!before) after()
+    if (!before) await after()
     else {
       const ratios: number[] = []
       for (let round = 0; round < 5; round++) {
@@ -65,7 +65,6 @@ export function gate<F extends (...args: never) => unknown>(
       }
       expect(median(ratios), 'slower than main beyond the noise').toBeLessThanOrEqual(noise)
     }
-    if (fresh(folder)) return
     const receipt = { sha256: digest(folder) }
     writeFileSync(new URL('bench.json', folder), `${JSON.stringify(receipt, null, 2)}\n`)
   })
